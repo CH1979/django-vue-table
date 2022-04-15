@@ -6,5 +6,6 @@ class RowSerializer(ModelSerializer):
     """
     Сериалайзер строк таблицы
     """
-    model = Row
-    fields = "__all__"
+    class Meta:
+        model = Row
+        fields = "__all__"
