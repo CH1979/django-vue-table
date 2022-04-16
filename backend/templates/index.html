@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Тестовое задание для компании WelbeX</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-exp.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  </head>
+  <body>
+    <div id="app" class="container grid-lg">
+      <div class="columns" v-if="info">
+
+        <!--  Pagination -->
+        <div class="col-6">
+          <a href="" v-if="info.previous" @click.stop.prevent="toPage(info.previous)">Назад </a>
+          <a href="" v-if="info.next" @click.stop.prevent="toPage(info.next)">Вперед</a>
+        </div>
+        <div class="col-6 text-right">Всего записей: ${ info.count }</div>
+
+        <!--  Filters  -->
+        <form class="columns col-12 form-group">
+          <div class="col-2">
+            <select class="form-select" v-model="filter_field_selected" @change="onChangeFilterField">
+              <option value="date">Дата</option>
+              <option value="name">Название</option>
+              <option value="quantity">Количество</option>
+              <option value="distance">Расстояние</option>
+            </select>
+          </div>
+          <div class="col-2">
+            <select class="form-select" v-model="filter_option_selected">
+              <option v-for="filter_option in filter_options" v-bind:value="filter_option.value">
+                ${ filter_option.text }
+              </option>
+            </select>
+          </div>
+          <div class="popover popover-bottom col-2">
+            <input class="form-input" :type="input_type" v-model="filter_value">
+          </div>
+          <div class="col-2">
+            <button class="btn btn-primary input-group-btn" @click.stop.prevent="filterData">Показать</button>
+          </div>
+        </form>
+
+        <!--  Table  -->
+        <table class="table table-striped">
+          <tr>
+            <th>Дата</th>
+            <th>
+              <a href="" @click.stop.prevent="orderByName()">
+                Название <span v-html="name_order_symbol"></span>
+              </a>
+            </th>
+            <th>
+              <a href="" @click.stop.prevent="orderByQuantity()">
+                Количество <span v-html="quantity_order_symbol"></span>
+              </a>
+            </th>
+            <th>
+              <a href="" @click.stop.prevent="orderByDistance()">
+                Расстояние <span v-html="distance_order_symbol"></span>
+              </a>
+            </th>
+          </tr>
+          <tr v-for="row in info.results">
+            <td>${ row.date }</td>
+            <td>${ row.name }</td>
+            <td>${ row.quantity }</td>
+            <td>${ row.distance }</td>
+          </tr>
+        </table>
+
+        <!--  Pagination -->
+        <div class="col-6">
+          <a href="" v-if="info.previous" @click.stop.prevent="toPage(info.previous)">Назад </a>
+          <a href="" v-if="info.next" @click.stop.prevent="toPage(info.next)">Вперед</a>
+        </div>
+        <div class="col-6 text-right">Всего записей: ${ info.count }</div>
+
+      </div>
+    </div>
+  </body>
+  <script>
+    var filter_types = {
+      'date': [{
+          value: '__exact',
+          text: 'равно'
+        }, {
+          value: '__gt',
+          text: 'позднее'
+        }, {
+          value: '__lt',
+          text: 'ранее'
+        }
+      ],
+      'name': [{
+          value: '__iexact',
+          text: 'равно'
+        }, {
+          value: '__icontains',
+          text: 'содержит'
+        }
+      ],
+      'quantity': [{
+          value: '__exact',
+          text: 'равно'
+        }, {
+          value: '__gt',
+          text: 'больше'
+        }, {
+          value: '__lt',
+          text: 'меньше'
+        }
+      ],
+      'distance': [{
+          value: '__exact',
+          text: 'равно'
+        }, {
+          value: '__gt',
+          text: 'больше'
+        }, {
+          value: '__lt',
+          text: 'меньше'
+        }
+      ]
+    };
+    new Vue({
+        el: '#app',
+        data() {
+          return {
+            info: null,
+            api_url: 'api/v1/rows/',
+            name_order: '',
+            name_order_symbol: '',
+            quantity_order: '',
+            quantity_order_symbol: '',
+            distance_order: '',
+            distance_order_symbol: '',
+            filter_field_selected: 'date',
+            filter_option_selected: '__exact',
+            filter_value: ''
+          };
+        },
+        delimiters: ['${', '}'],
+        methods: {
+          toPage(link) {
+            axios
+              .get(link)
+              .then(response => (this.info = response.data));
+          },
+          orderByName() {
+            let link = `api/v1/rows/?order=${this.name_order}name`;
+            axios
+              .get(link)
+              .then(response => (this.info = response.data));
+            this.name_order = this.name_order=='-' ? '' : '-';
+            this.name_order_symbol = this.name_order=='-' ? '&#x25b4;' : '&#x25be;';
+            this.quantity_order = '';
+            this.quantity_order_symbol = '';
+            this.distance_order = '';
+            this.distance_order_symbol = ''
+          },
+          orderByQuantity() {
+            let link = `api/v1/rows/?order=${this.quantity_order}quantity`;
+            axios
+              .get(link)
+              .then(response => (this.info = response.data));
+            this.name_order = '';
+            this.name_order_symbol = '';
+            this.quantity_order = this.quantity_order=='-' ? '' : '-';
+            this.quantity_order_symbol = this.quantity_order=='-' ? '&#x25b4;' : '&#x25be;';
+            this.distance_order = '';
+            this.distance_order_symbol = ''
+          },
+          orderByDistance() {
+            let link = `api/v1/rows/?order=${this.distance_order}distance`;
+            axios
+              .get(link)
+              .then(response => (this.info = response.data));
+            this.name_order = '';
+            this.name_order_symbol = '';
+            this.quantity_order = '';
+            this.quantity_order_symbol = '';
+            this.distance_order = this.distance_order=='-' ? '' : '-';
+            this.distance_order_symbol = this.distance_order=='-' ? '&#x25b4;' : '&#x25be;';
+          },
+          onChangeFilterField() {
+            this.filter_options = this.filter_options;
+            this.filter_value = '';
+          },
+          filterData() {
+            let link = `api/v1/rows/?filter=${this.filter_field_selected}${this.filter_option_selected}&filter_value=${this.filter_value}`;
+            axios
+              .get(link)
+              .then(response => (this.info = response.data));
+          }
+        },
+        computed: {
+          filter_options: {
+            get: function() {
+              return filter_types[this.filter_field_selected]
+            },
+            set: function() {
+              return filter_types[this.filter_field_selected]
+            }
+          },
+          input_type: function() {
+            switch(this.filter_field_selected) {
+              case 'date': return 'text'
+              case 'distance': return 'number'
+              case 'quantity': return 'number'
+              default: return 'text'
+            }
+          }
+        },
+        mounted() {
+          axios
+            .get(this.api_url)
+            .then(response => (this.info = response.data));
+        }
+    });
+  </script>
+</html>
