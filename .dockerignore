@@ -1,0 +1,4 @@
+.git
+env
+*.md
+dummy_data_generator.py
