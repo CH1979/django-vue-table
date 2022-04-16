@@ -25,8 +25,9 @@ SECRET_KEY = 'django-insecure-3b6mv#_0@mjb(=(aac%4wgcjj9427x26n$t2lp^mm70dcx)+3_
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = [
+    '127.0.0.1'
+]
 
 # Application definition
 
@@ -56,7 +57,7 @@ ROOT_URLCONF = 'welbex.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [ BASE_DIR / 'templates' ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
