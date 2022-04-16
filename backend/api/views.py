@@ -39,11 +39,11 @@ def filter_queryset(queryset, object):
     """
     filter_opt = object.request.query_params.get("filter", None)
     filter_value = object.request.query_params.get("filter_value", None)
-    filter_field = filter_opt.split("_")[0]
 
     if (filter_opt not in FILTER_OPTIONS) or (filter_value is None):
         return queryset
 
+    filter_field = filter_opt.split("_")[0]
     if filter_opt.startswith("quantity") or filter_opt.startswith("distance"):
         try:
             filter_value = float(filter_value)
